@@ -1,16 +1,16 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import axios from "axios";
+import api from "../services/api";
 import { useAuth } from "../contexts/AuthContext.jsx";
-import "../styles/Login_Register.css"
+import "../styles/Login_Register.css";
 
 const schema = yup.object().shape({
   username: yup.string().required("نام کاربری الزامی است"),
   password: yup.string().required("رمز عبور الزامی است"),
 });
 
-const Login = () => {
+export default function Login() {
   const {
     register,
     handleSubmit,
@@ -20,12 +20,13 @@ const Login = () => {
 
   const onSubmit = async (data) => {
     try {
-      const res = await axios.post("http://localhost:3000/auth/login", data);
+      const res = await api.post("/auth/login", data);
       const token = res.data.token;
       if (!token) throw new Error("توکن دریافت نشد!");
-      await handleLogin(token);
+      handleLogin(token);
     } catch (err) {
-      alert(err.response?.data?.message || err.message);
+      const msg = err.response?.data?.message || err.message || "خطای ناشناخته";
+      alert(msg);
     }
   };
 
@@ -70,6 +71,4 @@ const Login = () => {
       </form>
     </div>
   );
-};
-
-export default Login;
+}

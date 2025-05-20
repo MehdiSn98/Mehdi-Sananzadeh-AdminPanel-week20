@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect } from "react";
-import axios from "axios";
+import api from "../services/api";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { ProductContext } from "../contexts/ProductContext.jsx";
 import ProductList from "./ProductList.jsx";
@@ -26,7 +26,7 @@ export default function DashboardInner() {
   const handleDelete = async () => {
     try {
       const token = localStorage.getItem("token") || "";
-      await axios.delete(`http://localhost:3000/products/${deleteId}`, {
+      await api.delete(`http://localhost:3000/products/${deleteId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchProducts();
@@ -41,11 +41,11 @@ export default function DashboardInner() {
     const token = localStorage.getItem("token") || "";
     try {
       if (data.id) {
-        await axios.put(`http://localhost:3000/products/${data.id}`, data, {
+        await api.put(`http://localhost:3000/products/${data.id}`, data, {
           headers: { Authorization: `Bearer ${token}` },
         });
       } else {
-        await axios.post("http://localhost:3000/products", data, {
+        await api.post("http://localhost:3000/products", data, {
           headers: { Authorization: `Bearer ${token}` },
         });
       }

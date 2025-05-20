@@ -1,9 +1,29 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
 
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
+
+function parseJwt(token) {
+  if (!token) return null;
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
+  try {
+    const b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(b64)
+        .split("")
+        .map((c) => {
+          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
+  } catch (err) {
+    console.error("parseJwt error:", err);
+    return null;
+  }
+}
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -12,32 +32,40 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) return;
-    axios
-      .get("/api/user", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => {
-        setUser(res.data);
+    if (token) {
+      const u = parseJwt(token);
+      if (u) {
+        setUser(u);
         setIsLoggedIn(true);
-      })
-      .catch(() => {
+      } else {
         localStorage.removeItem("token");
-      });
+      }
+    }
   }, []);
 
-  const handleLogin = async (token) => {
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const u = parseJwt(token);
+      if (u) {
+        setUser(u);
+        setIsLoggedIn(true);
+      } else {
+        localStorage.removeItem("token");
+      }
+    }
+  }, []);
+  const handleLogin = (token) => {
     localStorage.setItem("token", token);
-    try {
-      const res = await axios.get("/api/user", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setUser(res.data);
+    const u = parseJwt(token);
+    if (u) {
+      setUser(u);
       setIsLoggedIn(true);
-    } catch {
+    } else {
+      console.warn("Invalid token, logging out");
       localStorage.removeItem("token");
-      setIsLoggedIn(false);
       setUser(null);
+      setIsLoggedIn(false);
     }
   };
 

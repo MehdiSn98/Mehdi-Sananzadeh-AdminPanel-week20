@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import axios from "axios";
+import api from "../services/api";
 import { useAuth } from "../contexts/AuthContext.jsx";
 
 const schema = yup.object().shape({
@@ -23,7 +23,7 @@ const Register = () => {
 
   const onSubmit = async (data) => {
     try {
-      await axios.post("http://localhost:3000/auth/register", {
+      await api.post("http://localhost:3000/auth/register", {
         username: data.username,
         password: data.password,
       });
