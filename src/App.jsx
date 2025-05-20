@@ -1,7 +1,7 @@
 import { useAuth } from "./contexts/AuthContext.jsx";
-import Login from "./components/Login.jsx";
-import Register from "./components/Register.jsx";
-import Dashboard from "./components/Dashboard.jsx";
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
 
 const MainApp = () => {
   const { handleLogout } = useAuth();
